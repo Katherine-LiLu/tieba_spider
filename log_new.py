@@ -187,7 +187,8 @@ def test1(url):
 
 if __name__ == "__main__":
     filename = 'data.csv'
-    for j in range(0, 2):
+    #贴吧只能访问最近200页
+    for j in range(0, 200):
         x = urllib.request.quote("柯南")
         href,pgs = scrapy("https://tieba.baidu.com/f?kw="+x+"&pn="+str(j*50))
         for i in href:
