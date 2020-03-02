@@ -196,11 +196,14 @@ if __name__ == "__main__":
             #path='https://tieba.baidu.com/p/6521477887'
             try:
                 results=test1(path)
+                count=1
+                length=len(results)
                 with open(filename, 'a') as file_object:
                     for content in results:
-                        if content!=results[-1]:
+                        if count!=length:
                             file_object.write(content)
                             file_object.write(',')
+                            count=count+1
                         else:
                             file_object.write(content)
                             file_object.write('\n')
