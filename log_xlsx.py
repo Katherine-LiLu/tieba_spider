@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #import io
-#import sys
+import sys
 import urllib
 import os
 from lxml import etree
@@ -9,7 +9,7 @@ from lxml import etree
 import requests
 import re
 from bs4 import BeautifulSoup
-import time
+#import time
 #import xlwt
 import xlsxwriter
 #sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
@@ -166,7 +166,7 @@ def findname(soup):
     cname = ''
     mname = ''
     tname = ''
-    name = soup.find_all('h3')[0]
+    name = soup.find_all('title')[0]
     #name = soup.find('h3', class_="core_title_txt pull-left text-overflow")
     #if name == None:
     #    name = soup.find('h3', class_="core_title_txt pull-left text-overflow vip_red")
@@ -210,7 +210,7 @@ def findname(soup):
     return pname
 
 
-def test1(url):
+def test1(url,file,maxpage):
 #    global num
 #    global cnb
     ##列序号
@@ -234,22 +234,23 @@ def test1(url):
                 continue
             else:
                 break
-    time.sleep(0.1)
+    #time.sleep(0.1)
     content = data1.text
     soup = BeautifulSoup(content, 'html.parser')
     excelname = findname(soup)
-    if os.path.exists('text'):
-        wb1 = xlsxwriter.Workbook("text/" + excelname + '.xlsx')
+    if os.path.exists(file):
+        wb1 = xlsxwriter.Workbook(file + '/' + excelname + '.xlsx')
     else:
-        os.makedirs('text')
-        wb1 = xlsxwriter.Workbook("text/" + excelname + '.xlsx')
+        os.makedirs(file)
+        wb1 = xlsxwriter.Workbook(file + '/' + excelname + '.xlsx')
     ws = wb1.add_worksheet('cosplay')
     if soup.title.string != "贴吧404":
         limit = soup.find_all('span', class_='red')
-        page = limit[1].get_text()
+        page_t = limit[1].get_text()
+        page = min(int(page_t),maxpage)
         for k in range(int(page)):
             url1 = url+"?pn="+str(k+1)
-            print(url1)
+            print(url1+' total: '+str(int(page)))
             maxtrytime = 5
             for trys in range(maxtrytime):
                 try:
@@ -260,108 +261,36 @@ def test1(url):
                         continue
                     else:
                         break
-            time.sleep(0.1)
+            #time.sleep(0.1)
             content = data1.text
             soup = BeautifulSoup(content, 'html.parser')
-            ##找到每一个帖子下面的回复
-            # dt = soup.find_all('div', class_="d_post_content j_d_post_content")
-            # for i in dt:
-            #     rp.append(i.get_text())
-            #     # print(i.get_text())
-            # ##找到回复的时间
-            # tm = soup.find_all('span', class_="tail-info")
-            # for i in tm:
-            #     rpt.append(i.get_text())
-            #     # print(i.get_text())
-            #     # print(i.get_text())
-            # ##找到发回复的人
-            # rpp = soup.find_all('a', class_='p_author_name j_user_card')
-            # for i in rpp:
-            #     # print(i.get_text())
-            #     rpu.append(i.get_text())
-            # # print(len(rp))
-            # # print(len(rpt))
-            # # print(len(rpu))
-            ##找到帖子名称
-            nname = findname(soup)
-            if nname != None:
-                for i in soup.find_all('div',class_='l_post l_post_bright j_l_post clearfix'):
-                    # ##找到回复
-                    # print(str(i))
-                    rep = i.find('div', class_='d_post_content j_d_post_content')
-                    if rep != None:
-                        # print(rep.get_text())
-                        ws.write(0, 3*rnb, rep.get_text())
-                    ##找时间
-                    # te = re.findall(r'"date":"(.+?)"',str(i))
-                    # floor = re.findall(r'"post_no":(.+?),"',str(i))
-                    # ws.write(cnb, 3 * rnb + 1, te.pop() +" "+floor.pop()+"楼")
-                    ##找时间
+
+            for i in soup.find_all('div',class_='l_post'):
+                # ##找到回复
+                # print(str(i))                
+                try:
+                    rep = i.find('div', class_='d_post_content')
+                    postcontent=rep.get_text()
+                except:
+                    postcontent=' '
+                ws.write(0, 3*rnb, postcontent)
+                ##找时间
+                
+                try:
                     te = i.find_all('span', class_="tail-info")
-                    ws.write(0, 3*rnb+1, te[-2].get_text()+te[-1].get_text())
-                    # for i in te:
-                    #     print(i.get_text())
-#                    if len(te) == 3:
-#                        # print(te.get_text())
-#                        # print(te[2].get_text())
-#                        ws.write(0, 3*rnb+1, te[1].get_text()+te[2].get_text())
-#                    else:
-#                        if len(te) == 2:
-#                            ws.write(0, 3 * rnb + 1, te[0].get_text() + te[1].get_text())
-#                        else:
-#                            data = requests.get(url1,headers=headers)
-#                            content = data.text
-#                            soup = BeautifulSoup(content, 'html.parser')
-#                            soup.find_all('span', class_="tail-info")
-#                            if len(te) == 3:
-#                                # print(te.get_text())
-#                                # print(te[2].get_text())
-#                                ws.write(0, 3 * rnb + 1, te[1].get_text() + te[2].get_text())
-#                            else:
-#                                if len(te) == 2:
-#                                    ws.write(0, 3 * rnb + 1, te[0].get_text() + te[1].get_text())
-
-                        # print(te.get_text())
-                        # print(te[1].get_text())
-
-                    #     ws.write(cnb,rnb,te)
-                    ##找人
+                    posttime=te[-2].get_text()+te[-1].get_text()
+                except:
+                    posttime=' '
+                ws.write(0, 3*rnb+1, posttime)
+                ##找人
+                
+                try:
                     pp = i.find('a', class_='p_author_name')
-                    if pp != None:
-                        # print(pp.get_text())
-                        ws.write(0, 3 * rnb + 2, pp.get_text())
-#                    else:
-#                        pp = i.find('a', class_='p_author_name j_user_card vip_red')
-#                        if pp != None:
-#                            # print(pp.get_text())
-#                            ws.write(0, 3 * rnb + 2, pp.get_text())
-#                        else:
-#                            pp = i.find('a', class_='p_author_name sign_highlight j_user_card')
-#                            if pp != None:
-#                                # print(pp.get_text())
-#                                ws.write(0, 3 * rnb + 2, pp.get_text())
-#                            else:
-#                                pp = i.find('a', class_='p_author_name sign_highlight j_user_card vip_red')
-#                                if pp!=None:
-#                                    # print(pp.get_text())
-#                                    ws.write(0, 3 * rnb + 2, pp.get_text())
-                    # print(pp.get_text())
-                    # print(te[1].get_text())
-#                    for j in i.find_all('div', class_='d_post_content j_d_post_content'):
-#                        if len(te) == 3:
-#                            if os.path.exists('F:\QQdownload\\360341083\FileRecv\柯南\\' + nname+'\\' + pp.get_text() + '\\' + te[2].get_text().split(' ')[0]):
-#                                getImage(str(j), 'F:\QQdownload\\360341083\FileRecv\柯南\\'+ nname+'\\' +pp.get_text() +'\\' + te[2].get_text().split(' ')[0])
-#                            else:
-#                                os.makedirs('F:\QQdownload\\360341083\FileRecv\柯南\\' + nname +'\\'+ pp.get_text() + '\\' + te[2].get_text().split(' ')[0])
-#                                getImage(str(j), 'F:\QQdownload\\360341083\FileRecv\柯南\\'+ nname+'\\' + pp.get_text() +'\\' + te[2].get_text().split(' ')[0])
-#                        else:
-#                            if os.path.exists('F:\QQdownload\\360341083\FileRecv\柯南\\' + nname+'\\' + pp.get_text() + '\\' + te[1].get_text().split(' ')[0]):
-#                                getImage(str(j), 'F:\QQdownload\\360341083\FileRecv\柯南\\'+nname+'\\'+ pp.get_text() +'\\' + te[1].get_text().split(' ')[0])
-#                            else:
-#                                os.makedirs('F:\QQdownload\\360341083\FileRecv\柯南\\' +nname+'\\'+ pp.get_text() + '\\' + te[1].get_text().split(' ')[0])
-#                                getImage(str(j), 'F:\QQdownload\\360341083\FileRecv\柯南\\'+nname+'\\'+ pp.get_text() +'\\' + te[1].get_text().split(' ')[0])
-#                        num += 1
-                    rnb+=1
+                    postname=pp.get_text()
+                except:
+                    postname=' '
+                ws.write(0, 3 * rnb + 2, postname)
+                rnb+=1
 
     wb1.close()
     # for i in range(len(rp)):
@@ -398,11 +327,19 @@ def test1(url):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 4:
+        name = sys.argv[1]
+        file = sys.argv[2]
+        maxpage=sys.argv[3]
+    elif len(sys.argv) == 3:
+        name = sys.argv[1]
+        file = sys.argv[2]
+        maxpage=10000
 #    x = urllib.request.quote("柯南")
 #    href,pags = scrapy("https://tieba.baidu.com/f?kw="+x)
     for j in range(0, 200):
-        x = urllib.request.quote("柯南")
+        x = urllib.request.quote(name)
         href,pgs = scrapy("https://tieba.baidu.com/f?kw="+x+"&pn="+str(j*50))
         for i in href:
             path = "https://tieba.baidu.com"+i
-            test1(path)
+            test1(path,file,maxpage)

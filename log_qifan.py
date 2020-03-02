@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 import urllib
-import os
+#import os
 from lxml import etree
 import requests
-import re
+#import re
 from bs4 import BeautifulSoup
-import time
+#import time
 from Until import getTimeAndFloor
 import csv
 
-session = requests.session()
+#session = requests.session()
 
-requests.adapters.DEFAULT_RETRIES = 5
+#requests.adapters.DEFAULT_RETRIES = 5
 
 ##行序号
 cnb = 0
 num = 0
 
-textpath = 'text/'
+#textpath = 'text/'
 
 def read_HTML(url):
     file = urllib.request.urlopen(url)
@@ -44,11 +44,11 @@ def CrawlPost(url):
     global num
     global cnb
     ##列序号
-    rnb = 0
-    rp = []
-    rpt = []
-    rpu = []
-    maxtrytime = 10
+#    rnb = 0
+#    rp = []
+#    rpt = []
+#    rpu = []
+    maxtrytime = 5
     headers = {
             #'Cookie':'TIEBAUID=a62b21a2c643881449f4bb54; TIEBA_USERTYPE=df77991dd15aac86d8a2f857; BAIDUID=5B4950A99E5727E59B4EAA181CBBB666:FG=1; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1556628646; Hm_lpvt_98b9d8c2fd6608d564bf2ac2ae642948=1556631206; BDUSS=3gtSnJVZHhydHBQaUE2WTFvTVY2OEV0TXZTczVKblBVSngzM0lCTnR6VGIwZTljRVFBQUFBJCQAAAAAAAAAAAEAAABRQtNfzOzN9bjHtdi7orChxOMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANtEyFzbRMhcc; STOKEN=68c97ecf87d6e400fa4c8fcb786cb3c9b080cc49f3c19a7c4cdaf49c41e3e070; wise_device=0; 1607680593_FRSVideoUploadTip=1; BIDUPSID=3F2962181D0227C2BC4AA03B390B1C06; PSTM=1556631240; BDRCVFR[gltLrB7qNCt]=mk3SLVN4HKm; delPer=0; PSINO=3; H_PS_PSSID=1469_21098_28775_28722_28964_28834_28585_28603; BDORZ=FFFB88E999055A3F8A630C64834BD6D0',
             #'Host':'tieba.baidu.com',
@@ -119,13 +119,14 @@ if __name__ == "__main__":
 
     fpath = 'data.csv'
     # 柯南吧url https://tieba.baidu.com/f?kw=柯南
-    href, pags = scrapy("https://tieba.baidu.com/f?kw=" + x)
+    #href, pags = scrapy("https://tieba.baidu.com/f?kw=" + x)
     for pn in range(0, 200):
         try:
             # 一页有50个帖子
-            # href, pgs = scrapy("https://tieba.baidu.com/f?kw=" + x + "&pn=" + str(pn * 50))
+            href, pgs = scrapy("https://tieba.baidu.com/f?kw=" + x + "&pn=" + str(pn * 50))
             for h in href:
                 path = "https://tieba.baidu.com" + h
+                #path='https://tieba.baidu.com/p/6521477887'
                 print(path)
                 # 一个帖子下面的页数
                 pageCount = getPageCount(path)

@@ -5,7 +5,7 @@ from lxml import etree
 import requests
 import re
 from bs4 import BeautifulSoup
-import time
+#import time
 
 
 def read_HTML(url):
@@ -120,7 +120,7 @@ def test1(url):
                 continue
             else:
                 break
-    time.sleep(0.3)
+    #time.sleep(0.3)
     content = data1.text
     soup = BeautifulSoup(content, 'html.parser')
 
@@ -140,7 +140,7 @@ def test1(url):
                         continue
                     else:
                         break
-            time.sleep(0.3)
+            #time.sleep(0.3)
             content = data1.text
             soup = BeautifulSoup(content, 'html.parser')
 
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     filename = 'data.csv'
     #贴吧只能访问最近200页
     for j in range(0, 200):
-        x = urllib.request.quote("柯南")
+        x = urllib.request.quote("迪士尼")
         href,pgs = scrapy("https://tieba.baidu.com/f?kw="+x+"&pn="+str(j*50))
         for i in href:
             path = "https://tieba.baidu.com"+i
