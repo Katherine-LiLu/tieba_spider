@@ -247,7 +247,7 @@ def test1(url,file,maxpage):
     if soup.title.string != "贴吧404":
         limit = soup.find_all('span', class_='red')
         page_t = limit[1].get_text()
-        page = min(int(page_t),maxpage)
+        page = min(int(page_t),int(maxpage))
         for k in range(int(page)):
             url1 = url+"?pn="+str(k+1)
             print(url1+' total: '+str(int(page)))
@@ -330,7 +330,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 4:
         name = sys.argv[1]
         file = sys.argv[2]
-        maxpage=int(sys.argv[3])
+        maxpage=sys.argv[3]
     elif len(sys.argv) == 3:
         name = sys.argv[1]
         file = sys.argv[2]
