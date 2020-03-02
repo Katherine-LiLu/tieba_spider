@@ -5,6 +5,7 @@ from lxml import etree
 import requests
 import re
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 #import time
 
 
@@ -129,7 +130,7 @@ def test1(url):
         page = limit[1].get_text()
         for k in range(int(page)):
             url1 = url+"?pn="+str(k+1)
-            print(url1)
+            print(url1+' total: '+str(int(page)))
             maxtrytime = 5
             for trys in range(maxtrytime):
                 try:
@@ -188,8 +189,8 @@ def test1(url):
 if __name__ == "__main__":
     filename = 'data.csv'
     #贴吧只能访问最近200页
-    for j in range(0, 200):
-        x = urllib.request.quote("迪士尼")
+    for j in tqdm(range(0, 200)):
+        x = urllib.request.quote("柯南")
         href,pgs = scrapy("https://tieba.baidu.com/f?kw="+x+"&pn="+str(j*50))
         for i in href:
             path = "https://tieba.baidu.com"+i
