@@ -330,7 +330,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 4:
         name = sys.argv[1]
         file = sys.argv[2]
-        maxpage=sys.argv[3]
+        maxpage=int(sys.argv[3])
     elif len(sys.argv) == 3:
         name = sys.argv[1]
         file = sys.argv[2]
