@@ -56,7 +56,7 @@ def get_url(url):
             return None
 
 
-def test1(url, file, max_page, count):
+def test1(url, file, max_page, count, page_now, page_total):
     data1 = get_url(url)
     if data1 is not None:
         content = data1.text
@@ -79,7 +79,7 @@ def test1(url, file, max_page, count):
             # 对于帖子的每一页
             for k in range(int(page)):
                 url1 = url + "?pn=" + str(k + 1)
-                print(url1 + ' total: ' + str(int(page)))
+                print(url1+' total:'+str(int(page))+' now '+str(page_now)+' in '+str(page_total)+' pages')
                 data1 = get_url(url)
                 if data1 is not None:
                     content = data1.text
@@ -138,6 +138,10 @@ if __name__ == "__main__":
         name = sys.argv[1]
         file = sys.argv[2]
         max_page = 10000
+    else:
+        name = '柯南'
+        file = 'kenan'
+        max_page = 100
 
     x = urllib.request.quote(name)
     href, page_num = scrapy("https://tieba.baidu.com/f?kw="+x)
@@ -149,10 +153,10 @@ if __name__ == "__main__":
         x = urllib.request.quote(name)
         href, page_s = scrapy("https://tieba.baidu.com/f?kw="+x+"&pn="+str(j*50))
         if href is not None:
-            print('----post pages {}/{}----'.format(j+1, max_page_num))
+            # print('----post pages {}/{}----'.format(j+1, max_page_num))
             for i in href:
                 path = "https://tieba.baidu.com"+i
-                test1(path, file, max_page, count)
+                test1(path, file, max_page, count, j, max_page_num)
                 count = count + 1
         else:
             print('href error')
