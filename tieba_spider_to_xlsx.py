@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import math
 import urllib
 import os
 from lxml import etree
@@ -11,12 +12,12 @@ import xlsxwriter
 
 def read_html(url):
     try:
-        file1 = urllib.request.urlopen(url)
+        file1 = urllib.request.urlopen(url, timeout=5)
         data = file1.read()
         return data
     except:
         try:
-            file1 = urllib.request.urlopen(url)
+            file1 = urllib.request.urlopen(url, timeout=5)
             data = file1.read()
             return data
         except:
@@ -31,8 +32,10 @@ def scrapy(url):
 
         # 帖子链接
         link = html.xpath("//a[@class='j_th_tit ']/@href")
-
-        return link
+        # 帖子数量
+        post_num = int(html.xpath('//span[@class="red_text"]')[0].text)
+        pages = math.ceil(post_num/50)
+        return link, pages
     else:
         print('get link error:'+str(url))
         return None
@@ -42,11 +45,11 @@ def get_url(url):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0',
                'Connection': 'close'}
     try:
-        data1 = requests.get(url, headers=headers)
+        data1 = requests.get(url, headers=headers, timeout=(3, 7))
         return data1
     except:
         try:
-            data1 = requests.get(url, headers=headers)
+            data1 = requests.get(url, headers=headers, timeout=(3, 7))
             return data1
         except:
             print('get url error:'+str(url))
@@ -135,11 +138,18 @@ if __name__ == "__main__":
         name = sys.argv[1]
         file = sys.argv[2]
         max_page = 10000
+
+    x = urllib.request.quote(name)
+    href, page_num = scrapy("https://tieba.baidu.com/f?kw="+x)
+    max_page_num = min(page_num, 200)
+
     count = 1
-    for j in range(0, 200):
+
+    for j in range(0, max_page_num):
         x = urllib.request.quote(name)
-        href = scrapy("https://tieba.baidu.com/f?kw="+x+"&pn="+str(j*50))
+        href, page_s = scrapy("https://tieba.baidu.com/f?kw="+x+"&pn="+str(j*50))
         if href is not None:
+            print('----post pages {}/{}----'.format(j+1, max_page_num))
             for i in href:
                 path = "https://tieba.baidu.com"+i
                 test1(path, file, max_page, count)
