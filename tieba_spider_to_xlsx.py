@@ -156,7 +156,7 @@ if __name__ == "__main__":
             # print('----post pages {}/{}----'.format(j+1, max_page_num))
             for i in href:
                 path = "https://tieba.baidu.com"+i
-                test1(path, file, max_page, count, j, max_page_num)
+                test1(path, file, max_page, count, j+1, max_page_num)
                 count = count + 1
         else:
             print('href error')
