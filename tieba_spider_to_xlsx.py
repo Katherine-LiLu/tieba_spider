@@ -4,7 +4,7 @@ import urllib
 import os
 from lxml import etree
 import requests
-import re
+import json
 from bs4 import BeautifulSoup
 import xlsxwriter
 
@@ -96,10 +96,18 @@ def test1(url, file, max_page, count):
                             te = post.find_all('span', class_="tail-info")
                             posttime = te[-2].get_text() + te[-1].get_text()
                         except:
-                            print('未找到时间')
-                            posttime = None
+                            try:
+                                jsonObject = json.loads(post.attrs['data-field'])
+                                floornum = jsonObject['content']['post_no']
+                                floortime = jsonObject['content']['date']
+                                posttime = str(floornum)+'楼'+str(floortime)
+                            except:
+                                print('未找到时间')
+                                posttime = None
                         # 找人
                         try:
+                            # jsonObject = json.loads(post.attrs['data-field'])
+                            # postname = jsonObject['author']['user_name']
                             pp = post.find('a', class_='p_author_name')
                             postname = pp.get_text()
                         except:
