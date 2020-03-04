@@ -38,7 +38,7 @@ def scrapy(url):
         return link, pages
     else:
         print('get link error:'+str(url))
-        return None
+        return None, None
 
 
 def get_url(url):
