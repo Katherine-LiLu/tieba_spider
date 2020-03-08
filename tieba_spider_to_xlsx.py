@@ -56,6 +56,16 @@ def get_url(url):
             return None
 
 
+def get_page_num(soup, max_page):
+    try:
+        limit = soup.find_all('span', class_='red')
+        page_t = limit[1].get_text()
+        page = min(int(page_t), int(max_page))
+        return page
+    except:
+        return None
+
+
 def test1(url, file, max_page, count, page_now, page_total):
     data1 = get_url(url)
     if data1 is not None:
@@ -64,69 +74,69 @@ def test1(url, file, max_page, count, page_now, page_total):
         excel_name = str(count)
 
         if soup.title.string != "贴吧404":
-            limit = soup.find_all('span', class_='red')
-            page_t = limit[1].get_text()
-            page = min(int(page_t), int(max_page))
-
-            if os.path.exists(file):
-                wb1 = xlsxwriter.Workbook(file + '/' + excel_name + '.xlsx')
+            page = get_page_num(soup, max_page)
+            if page is None:
+                print('Cannot get page:'+str(url))
             else:
-                os.makedirs(file)
-                wb1 = xlsxwriter.Workbook(file + '/' + excel_name + '.xlsx')
-            ws = wb1.add_worksheet(file)
-            rnb = 0
-
-            # 对于帖子的每一页
-            for k in range(int(page)):
-                url1 = url + "?pn=" + str(k + 1)
-                print(url1+' total:'+str(int(page))+' now '+str(page_now)+' in '+str(page_total)+' pages')
-                data1 = get_url(url)
-                if data1 is not None:
-                    content = data1.text
-                    soup = BeautifulSoup(content, 'html.parser')
-
-                    # 对于每一层楼
-                    for post in soup.find_all('div', class_='l_post'):
-                        # 找回复
-                        try:
-                            rep = post.find('div', class_='d_post_content')
-                            postcontent = rep.get_text()
-                        except:
-                            print('未找到回复')
-                            postcontent = None
-                        # 找时间
-                        try:
-                            te = post.find_all('span', class_="tail-info")
-                            posttime = te[-2].get_text() + te[-1].get_text()
-                        except:
-                            try:
-                                jsonObject = json.loads(post.attrs['data-field'])
-                                floornum = jsonObject['content']['post_no']
-                                floortime = jsonObject['content']['date']
-                                posttime = str(floornum)+'楼'+str(floortime)
-                            except:
-                                print('未找到时间')
-                                posttime = None
-                        # 找人
-                        try:
-                            # jsonObject = json.loads(post.attrs['data-field'])
-                            # postname = jsonObject['author']['user_name']
-                            pp = post.find('a', class_='p_author_name')
-                            postname = pp.get_text()
-                        except:
-                            print('未找到人')
-                            postname = None
-                        if (postcontent is not None) and (posttime is not None) and (postname is not None):
-
-                            ws.write(0, 3 * rnb, postcontent)
-                            ws.write(0, 3 * rnb + 1, posttime)
-                            ws.write(0, 3 * rnb + 2, postname)
-                            rnb += 1
-                        else:
-                            print('post floor {} error:{}'.format(rnb+1, str(url)))
+                if os.path.exists(file):
+                    wb1 = xlsxwriter.Workbook(file + '/' + excel_name + '.xlsx')
                 else:
-                    print('post page error:'+str(url))
-            wb1.close()
+                    os.makedirs(file)
+                    wb1 = xlsxwriter.Workbook(file + '/' + excel_name + '.xlsx')
+                ws = wb1.add_worksheet(file)
+                rnb = 0
+
+                # 对于帖子的每一页
+                for k in range(int(page)):
+                    url1 = url + "?pn=" + str(k + 1)
+                    print(url1+' total:'+str(int(page))+' now '+str(page_now)+' in '+str(page_total)+' pages')
+                    data1 = get_url(url)
+                    if data1 is not None:
+                        content = data1.text
+                        soup = BeautifulSoup(content, 'html.parser')
+
+                        # 对于每一层楼
+                        for post in soup.find_all('div', class_='l_post'):
+                            # 找回复
+                            try:
+                                rep = post.find('div', class_='d_post_content')
+                                postcontent = rep.get_text()
+                            except:
+                                print('未找到回复')
+                                postcontent = None
+                            # 找时间
+                            try:
+                                te = post.find_all('span', class_="tail-info")
+                                posttime = te[-2].get_text() + te[-1].get_text()
+                            except:
+                                try:
+                                    jsonObject = json.loads(post.attrs['data-field'])
+                                    floornum = jsonObject['content']['post_no']
+                                    floortime = jsonObject['content']['date']
+                                    posttime = str(floornum)+'楼'+str(floortime)
+                                except:
+                                    print('未找到时间')
+                                    posttime = None
+                            # 找人
+                            try:
+                                # jsonObject = json.loads(post.attrs['data-field'])
+                                # postname = jsonObject['author']['user_name']
+                                pp = post.find('a', class_='p_author_name')
+                                postname = pp.get_text()
+                            except:
+                                print('未找到人')
+                                postname = None
+                            if (postcontent is not None) and (posttime is not None) and (postname is not None):
+
+                                ws.write(0, 3 * rnb, postcontent)
+                                ws.write(0, 3 * rnb + 1, posttime)
+                                ws.write(0, 3 * rnb + 2, postname)
+                                rnb += 1
+                            else:
+                                print('post floor {} error:{}'.format(rnb+1, str(url)))
+                    else:
+                        print('post page error:'+str(url))
+                wb1.close()
 
 
 if __name__ == "__main__":
